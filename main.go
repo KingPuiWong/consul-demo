@@ -2,7 +2,10 @@ package main
 
 import (
 	"consul-demo/consul_client"
+	"fmt"
+	"log"
 	"net"
+	"net/http"
 )
 
 func main() {
@@ -40,13 +43,30 @@ func main() {
 		panic(err)
 	}
 
+	log.Println(ip.String())
+
 	port := 20001
+	checkPoint := 9090
 	serviceName := "hello-consul"
 	serviceNameID := "hello-consul-20001"
 	tags := []string{"consul-demo"}
-	if err := consulClient.Register(port, serviceName, serviceNameID, ip.String(), tags); err != nil {
+	if err := consulClient.Register(port, checkPoint, serviceName, serviceNameID, ip.String(), tags); err != nil {
 		panic(err)
+	}
 
+	var count int64
+
+	http.HandleFunc("/check", func(w http.ResponseWriter, r *http.Request) {
+		s := "consul check" + fmt.Sprint(count) + "remote:" + r.RemoteAddr + " " + r.URL.String()
+		fmt.Println(s)
+		fmt.Fprintf(w, s)
+		count++
+	})
+
+	err = http.ListenAndServe(fmt.Sprintf(":%d", checkPoint), nil)
+	if err != nil {
+		log.Fatal(err)
+		return
 	}
 
 }
