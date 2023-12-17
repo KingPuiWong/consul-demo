@@ -6,6 +6,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -69,6 +72,15 @@ func main() {
 		return
 	}
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	err = consulClient.Deregister(serviceNameID)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 }
 
 func getOutIp() (net.IP, error) {
