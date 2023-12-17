@@ -1,6 +1,7 @@
 package consul_client
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"log"
@@ -10,8 +11,8 @@ type ConsulClient interface {
 	Register(port, checkPoint int, serviceName, serviceID, ip string, tags []string) error
 	Deregister(serviceID string) error
 	DiscoverService(serviceID string) (*api.AgentService, error)
-	GetKV()
-	PutKV()
+	GetKV(key string) (string, error)
+	PutKV(key string, value any) error
 }
 
 type ConsulClientImpl struct {
@@ -67,12 +68,28 @@ func (c *ConsulClientImpl) DiscoverService(serviceID string) (*api.AgentService,
 	return service, nil
 }
 
-func (c *ConsulClientImpl) GetKV() {
-	//TODO implement me
-	panic("implement me")
+func (c *ConsulClientImpl) GetKV(key string) (string, error) {
+	kv := c.client.KV()
+	pair, _, err := kv.Get(key, nil)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	return string(pair.Value), nil
 }
 
-func (c *ConsulClientImpl) PutKV() {
-	//TODO implement me
-	panic("implement me")
+func (c *ConsulClientImpl) PutKV(key string, value any) error {
+	valueJson, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+
+	kv := c.client.KV()
+	p := api.KVPair{Key: key, Value: valueJson}
+	if _, err := kv.Put(&p, nil); err != nil {
+		return err
+	}
+
+	return nil
 }

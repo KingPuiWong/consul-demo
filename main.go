@@ -72,6 +72,18 @@ func main() {
 		return
 	}
 
+	//put key
+	if err := consulClient.PutKV("test", "test_value"); err != nil {
+		log.Println(err)
+	}
+
+	//get key
+	value, err := consulClient.GetKV("test")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println("get value:", value)
+
 	fmt.Printf("service:host:%s port:%d\n", service.Address, service.Port)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", checkPoint), nil)
