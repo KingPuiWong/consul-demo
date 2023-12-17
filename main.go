@@ -66,6 +66,14 @@ func main() {
 		count++
 	})
 
+	//discovery service
+	service, err := consulClient.DiscoverService(serviceNameID)
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("service:host:%s port:%d\n", service.Address, service.Port)
+
 	err = http.ListenAndServe(fmt.Sprintf(":%d", checkPoint), nil)
 	if err != nil {
 		log.Fatal(err)

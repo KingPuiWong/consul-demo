@@ -9,9 +9,9 @@ import (
 type ConsulClient interface {
 	Register(port, checkPoint int, serviceName, serviceID, ip string, tags []string) error
 	Deregister(serviceID string) error
+	DiscoverService(serviceID string) (*api.AgentService, error)
 	GetKV()
 	PutKV()
-	GetService()
 }
 
 type ConsulClientImpl struct {
@@ -59,6 +59,14 @@ func (c *ConsulClientImpl) Deregister(serviceID string) error {
 	return c.client.Agent().ServiceDeregister(serviceID)
 }
 
+func (c *ConsulClientImpl) DiscoverService(serviceID string) (*api.AgentService, error) {
+	service, _, err := c.client.Agent().Service(serviceID, nil)
+	if err != nil {
+		return nil, err
+	}
+	return service, nil
+}
+
 func (c *ConsulClientImpl) GetKV() {
 	//TODO implement me
 	panic("implement me")
@@ -66,9 +74,5 @@ func (c *ConsulClientImpl) GetKV() {
 
 func (c *ConsulClientImpl) PutKV() {
 	//TODO implement me
-	panic("implement me")
-}
-
-func (c *ConsulClientImpl) GetService() {
 	panic("implement me")
 }
