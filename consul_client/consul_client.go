@@ -3,8 +3,9 @@ package consul_client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/consul/api"
 	"log"
+
+	"github.com/hashicorp/consul/api"
 )
 
 type ConsulClient interface {
@@ -41,8 +42,7 @@ func (c *ConsulClientImpl) Register(port, checkPoint int, serviceName, serviceID
 		Address: ip,
 	}
 
-	//TODO:这里的地址应该换成 ip,但是不清楚为什么我本地启动这个服务，出口ip不能访问到
-	checkHttpRoute := fmt.Sprintf("http://%s:%d%s", "127.0.0.1", checkPoint, "/check")
+	checkHttpRoute := fmt.Sprintf("http://%s:%d%s", ip, checkPoint, "/check")
 	log.Println("checkHttpRoute:", checkHttpRoute)
 	srv.Check = &api.AgentServiceCheck{
 		HTTP: checkHttpRoute,
