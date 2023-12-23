@@ -57,7 +57,7 @@ scrape_configs:
 
 ### 启动我们的程序
 
-[github 地址](https://github.com/KingPuiWong/consul-sdk)
+[github 地址]([https://github.com/KingPuiWong/consul-sdk](https://github.com/KingPuiWong/services-discovery-consul-prometheus))
 
 复制该项目，在项目目录下运行** go run . -listen=:8080**  **&**
 
