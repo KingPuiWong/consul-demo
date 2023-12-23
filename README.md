@@ -51,7 +51,7 @@ scrape_configs:
 
 访问 127.0.0.1:9090,成功启动的界面效果
 
-![截图](img/28a3ec6aa3621242f6219a1e9dc27883)
+![截图](img/28a3ec6aa3621242f6219a1e9dc27883.png)
 
 <br/>
 
@@ -67,12 +67,12 @@ scrape_configs:
 
 这时候你可以在 consul 的 ui 上看到我们已经成功注册了这个服务
 
-![截图](img/446399aa8bfbdcd35cb7359e5da599c1)
+![截图](img/446399aa8bfbdcd35cb7359e5da599c1.png)
 
 在 prometheus 的 ui 可以看到，prometheus 成功抓取到这个 target
 
-![截图](img/6996fcd39424ae401580b592647c6235)
+![截图](img/6996fcd39424ae401580b592647c6235.png)
 
 在代码使用了 Gauge 的名称为h ost_temperature_celsius，我们可以在根据这个指标，绘制一个面板，并且由于在代码里设置了它的值为 39，所以这个面板显示这个指标的值就是 39
 
-![截图](img/18b4dc6e0265673505ff67913067ffb7)
+![截图](img/18b4dc6e0265673505ff67913067ffb7.png)
