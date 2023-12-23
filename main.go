@@ -1,14 +1,21 @@
 package main
 
 import (
-	"consul-demo/consul_client"
+	"consul-demo/consul"
+	"flag"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+)
+
+var (
+	addr = flag.String("listen", ":8080", "The address to listen on for HTTP requests.")
 )
 
 func main() {
@@ -36,7 +43,17 @@ func main() {
 		}
 		fmt.Printf("KV: %v %s\n", pair.Key, pair.Value)
 	*/
-	consulClient, err := consul_client.NewConsulClient("127.0.0.1:8500")
+	flag.Parse()
+
+	temp := prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "host_temperature_celsius",
+		Help: "The current temperature is in degress Celsius",
+	})
+
+	prometheus.MustRegister(temp)
+	temp.Set(39)
+
+	consulClient, err := consul.NewConsulClient("127.0.0.1:8500")
 	if err != nil {
 		return
 	}
@@ -49,22 +66,13 @@ func main() {
 	log.Println(ip.String())
 
 	port := 20001
-	checkPoint := 9090
+	checkPoint := 8080
 	serviceName := "hello-consul"
 	serviceNameID := "hello-consul-20001"
 	tags := []string{"consul-demo"}
 	if err := consulClient.Register(port, checkPoint, serviceName, serviceNameID, ip.String(), tags); err != nil {
 		panic(err)
 	}
-
-	var count int64
-
-	http.HandleFunc("/check", func(w http.ResponseWriter, r *http.Request) {
-		s := "consul check" + fmt.Sprint(count) + "remote:" + r.RemoteAddr + " " + r.URL.String()
-		fmt.Println(s)
-		fmt.Fprintf(w, s)
-		count++
-	})
 
 	//discovery service
 	service, err := consulClient.DiscoverService(serviceNameID)
@@ -86,7 +94,21 @@ func main() {
 
 	fmt.Printf("service:host:%s port:%d\n", service.Address, service.Port)
 
-	err = http.ListenAndServe(fmt.Sprintf(":%d", checkPoint), nil)
+	var count int64
+
+	http.HandleFunc("/check", func(w http.ResponseWriter, r *http.Request) {
+		s := "consul check" + fmt.Sprint(count) + "remote:" + r.RemoteAddr + " " + r.URL.String()
+		fmt.Println(s)
+		fmt.Fprintf(w, s)
+		count++
+	})
+
+	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		h := promhttp.Handler()
+		h.ServeHTTP(w, r)
+	})
+
+	err = http.ListenAndServe(*addr, nil)
 	if err != nil {
 		log.Fatal(err)
 		return

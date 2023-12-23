@@ -1,4 +1,4 @@
-package consul_client
+package consul
 
 import (
 	"encoding/json"
@@ -42,7 +42,7 @@ func (c *ConsulClientImpl) Register(port, checkPoint int, serviceName, serviceID
 		Address: ip,
 	}
 
-	checkHttpRoute := fmt.Sprintf("http://%s:%d%s", ip, checkPoint, "/check")
+	checkHttpRoute := fmt.Sprintf("http://%s:%d%s", "127.0.0.1", checkPoint, "/check")
 	log.Println("checkHttpRoute:", checkHttpRoute)
 	srv.Check = &api.AgentServiceCheck{
 		HTTP: checkHttpRoute,
